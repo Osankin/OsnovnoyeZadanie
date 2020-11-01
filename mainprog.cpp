@@ -5,9 +5,13 @@
 #include <ctime>
 #include <cstdlib>
 
+//Функция bit_count отвечает за подсчет битов
 int bit_count(int input, bool value);
+//Функция generate_list отвечает за создание списка
 void generate_list(std::list<int>&l);
+//Функция print_list отвечает за вывод списка на экран
 void print_list(std::list<int>&l);
+//Функция work_with_list отвечает за выполнение основной логики программы
 void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int & counter_of_delete_elems);
 std::mutex mtx;
 
@@ -16,12 +20,17 @@ int main()
 	srand(static_cast<unsigned int>(time(0)));
 	setlocale(LC_ALL, "ru");
 	
+	//Размер списка
 	int size = 100;
 
+	//Счетчик нулевых битов
 	int counter_of_zero_bits = 0;
+	//Счетчик единичных битов
 	int counter_of_non_zero_bits = 0;
 
+	//Счетчик удаленных элементов первым потоком 
 	int counter_of_delete_elem_1 = 0;
+	//Счетчик удаленных элементов вторым потоком
 	int counter_of_delete_elem_2 = 0;
 
 	std::list<int> l(size);
@@ -29,6 +38,7 @@ int main()
 	print_list(l);
 	std::cout<<"\n";
 
+	//Создание двух потоков и передача основных параметров
 	std::thread th1(work_with_list, std::ref(l), false, std::ref(counter_of_zero_bits), std::ref(counter_of_delete_elem_1));
 	std::thread th2(work_with_list, std::ref(l), true, std::ref(counter_of_non_zero_bits), std::ref(counter_of_delete_elem_2));
 	th1.join();
@@ -46,11 +56,11 @@ int bit_count(int input, bool value)
 {
 	int res = 0;
 	static const unsigned shift_size = ((sizeof(int)*8)-1);
-	//if (input < 0)
-	//{
-	//	res++;
-	//	input &= ((1U<<shift_size)-1);
-	//}
+	if (input < 0)
+	{
+		res++;
+		input &= ((1U<<shift_size)-1);
+	}
 	while (input)
 	{
 		res += (input &1);
