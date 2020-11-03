@@ -4,6 +4,7 @@
 #include <mutex>
 #include <ctime>
 #include <cstdlib>
+#include <unistd.h>
 
 //Функция bit_count отвечает за подсчет битов
 int bit_count(int input, bool value);
@@ -43,11 +44,12 @@ int main()
 	std::thread th2(work_with_list, std::ref(l), true, std::ref(counter_of_non_zero_bits), std::ref(counter_of_delete_elem_2));
 	th1.join();
 	th2.join();
-
+	
 	std::cout<<"Количество нулевых бит: "<<counter_of_zero_bits<<"\n";
 	std::cout<<"Количество единичных  бит: "<<counter_of_non_zero_bits<<"\n";
 	std::cout<<"Количество пройденных первым потоком элементов: "<<counter_of_delete_elem_1<<"\n";
 	std::cout<<"Количество пройденных вторым потоком элементов: "<<counter_of_delete_elem_2<<"\n";
+	
 	return 0;
 
 }
@@ -98,15 +100,17 @@ void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int &cou
 	while (!l.empty())
 	{
 		int temp = 0;
+		int deleted_elem;
 		switch(value)
 		{
-			case false:
-				temp += bit_count(*(l.begin()),value);
+			case false:	
 				mtx.lock();
 				if (!l.empty())
 				{
+					deleted_elem = *l.begin();
 					l.pop_front();
 					mtx.unlock();
+					temp += bit_count(deleted_elem,value);
 					counter_of_delete_elems++;
 					counter_of_bits += temp;
 				}
@@ -114,12 +118,13 @@ void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int &cou
 					mtx.unlock();
 				break;
 			case true:
-				temp += bit_count(*(l.rbegin()),value);
 				mtx.lock();
 				if (!l.empty())
 				{
+					deleted_elem = *l.rbegin();
 					l.pop_back();
 					mtx.unlock();
+					temp += bit_count(deleted_elem,value);
 					counter_of_delete_elems++;
 					counter_of_bits += temp;
 				}
