@@ -23,7 +23,7 @@ int main()
 	
 	//Размер списка
 	int size = 100;
-
+	std::cout<<&size<<std::endl;
 	//Счетчик нулевых битов
 	int counter_of_zero_bits = 0;
 	//Счетчик единичных битов
@@ -131,8 +131,11 @@ void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int &cou
 					mtx.unlock();
 				break;
 		}
-	std::lock_guard<std::mutex> lock(mtx);
 		if (l.empty())
+		{
+			std::cout<< &l.front() << " " << &l.back() 
+		       		<< std::endl;	
 			break;
+		}
 	}
 }
