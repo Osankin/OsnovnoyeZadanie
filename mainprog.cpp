@@ -97,22 +97,21 @@ void print_list (std::list<int>&l)
 
 void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int &counter_of_delete_elems)
 {
-	while (!l.empty())
+	while (true)
 	{
-		int temp = 0;
 		int deleted_elem;
 		switch(value)
 		{
-			case false:	
+			case false:
 				mtx.lock();
 				if (!l.empty())
 				{
 					deleted_elem = *l.begin();
 					l.pop_front();
 					mtx.unlock();
-					temp += bit_count(deleted_elem,value);
+					counter_of_bits += 
+						bit_count(deleted_elem,value);
 					counter_of_delete_elems++;
-					counter_of_bits += temp;
 				}
 				else
 					mtx.unlock();
@@ -124,14 +123,16 @@ void work_with_list(std::list<int>&l, bool value, int &counter_of_bits, int &cou
 					deleted_elem = *l.rbegin();
 					l.pop_back();
 					mtx.unlock();
-					temp += bit_count(deleted_elem,value);
+					counter_of_bits += 
+						bit_count(deleted_elem,value);
 					counter_of_delete_elems++;
-					counter_of_bits += temp;
 				}
 				else
 					mtx.unlock();
 				break;
 		}
+	std::lock_guard<std::mutex> lock(mtx);
+		if (l.empty())
+			break;
 	}
 }
-
